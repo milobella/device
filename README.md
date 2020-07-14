@@ -4,6 +4,7 @@ Run milobella in a device, using mic and speakers to communicate.
 
 > Disclaimer : Only checked in a Raspberry PI 3B+ for now.
 
+# Technical choices
 ## Speech-To-Text
 The translation of voice records into text is currently performed by the [Google Cloud Speech-To-Text API](https://cloud.google.com/speech-to-text).
 
@@ -14,6 +15,7 @@ The translation of Milobella text answers into speech synthesis is ensured by [G
 
 No replacement has been considered for now.
 
+# Requirements
 ## Google cloud authentication configuration
 Authentication process is detailed in this documentation [https://cloud.google.com/speech-to-text/docs/quickstart-protocol].
 
@@ -33,6 +35,19 @@ source authenticate.sh
 
 ## Raspberry audio configuration
 If you are using a Raspberry PI, an example of ``.asoundrc`` is located in this repository. It is using a plugin to
-transform the sample rate to 16GHz. Somehow it works with this configuration ...
+transform the default sample rate to 16GHz, which is necessary to make work the google cloud speech-to-text. Somehow it works with this configuration ...
 
 The file ``.asoundrc`` needs to be copied in $HOME directory to be effective, and probably some adjustments are necessary to match the proper card and devices.
+
+# Run the program
+```
+# Not mandatory but it is always easier to have a virtualenv
+python3 -m venv venv
+source venv/bin/activate
+
+# Install requirements
+pip install -r requirements.txt
+
+# Run the app
+python milobella.py
+```
