@@ -17,7 +17,7 @@ No replacement has been considered for now.
 
 # Requirements
 #### Google cloud authentication configuration
-Authentication process is detailed in this documentation [https://cloud.google.com/speech-to-text/docs/quickstart-protocol].
+Authentication process is detailed in this documentation https://cloud.google.com/speech-to-text/docs/quickstart-protocol.
 
 It is using basically a ``GOOGLE_APPLICATION_CREDENTIALS`` env variable pointing to a JSON private key file.
 The JSON private key is generated when you create a Service Account.
