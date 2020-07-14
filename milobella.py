@@ -153,6 +153,7 @@ def listen_print_loop(responses):
                         'Authorization': 'Bearer ' + os.environ['MILOBELLA_AUTHORIZATION_TOKEN']
                     }
                 )
+                print(milobella_response.text)
                 print(milobella_response.json()["vocal"])
                 # Instantiates a client
                 client = texttospeech.TextToSpeechClient()
