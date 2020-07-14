@@ -41,7 +41,7 @@ The file ``.asoundrc`` needs to be copied in $HOME directory to be effective, an
 
 # Run the program
 ```
-# Not mandatory but it is always easier to have a virtualenv
+# [If not already in a venv] Not mandatory but it is always easier to have a virtualenv
 python3 -m venv venv
 source venv/bin/activate
 
