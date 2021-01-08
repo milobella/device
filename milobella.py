@@ -16,6 +16,7 @@ from google.cloud import texttospeech
 from pydub import AudioSegment
 from pydub.playback import play
 import io
+from pocketsphinx import LiveSpeech
 
 # Audio recording parameters
 RATE = 16000
@@ -33,10 +34,11 @@ class MicrophoneStream(object):
         self._buff = queue.Queue()
         self.closed = True
 
-    def __enter__(self):
         self._audio_interface = pyaudio.PyAudio()
         for i in range(self._audio_interface.get_device_count()):
             print(self._audio_interface.get_device_info_by_index(i))
+
+    def __enter__(self):
         self._audio_stream = self._audio_interface.open(
             format=pyaudio.paInt16,
             # The API currently only supports 1-channel (mono) audio
@@ -57,15 +59,17 @@ class MicrophoneStream(object):
         self._audio_stream.stop_stream()
         self._audio_stream.close()
         self.closed = True
-        # Signal the generator to terminate so that the client's
-        # streaming_recognize method will not block the process termination.
-        self._buff.put(None)
-        self._audio_interface.terminate()
 
     def _fill_buffer(self, in_data, frame_count, time_info, status_flags):
         """Continuously collect data from the audio stream, into the buffer."""
         self._buff.put(in_data)
         return None, pyaudio.paContinue
+
+    def terminate(self):
+        # Signal the generator to terminate so that the client's
+        # streaming_recognize method will not block the process termination.
+        self._buff.put(None)
+        self._audio_interface.terminate()
 
     def generator(self):
         while not self.closed:
@@ -143,7 +147,6 @@ def listen_print_loop(responses):
             # one of our keywords.
             if re.search(r'\b(stop)\b', transcript, re.I):
                 print('Exiting..')
-                break
             else:
                 milobella_response = requests_pkg.post(
                     'https://milobella.com:10443/talk/text',
@@ -181,6 +184,7 @@ def listen_print_loop(responses):
                 play(song)
 
             num_chars_printed = 0
+            break
 
 
 def main():
@@ -197,15 +201,24 @@ def main():
         config=config,
         interim_results=True)
 
-    with MicrophoneStream(RATE, CHUNK) as stream:
-        audio_generator = stream.generator()
-        requests = (types.StreamingRecognizeRequest(audio_content=content)
+    sphinx_speech = LiveSpeech(lm=False, keyphrase='bella', kws_threshold=1e-20)
+    stream = MicrophoneStream(RATE, CHUNK)
+    for phrase in sphinx_speech:
+        with stream:
+            print("oui ?")
+            audio_generator = stream.generator()
+            print("Start listening...")
+            requests = (types.StreamingRecognizeRequest(audio_content=content)
                     for content in audio_generator)
 
-        responses = client.streaming_recognize(streaming_config, requests)
 
-        # Now, put the transcription responses to use.
-        listen_print_loop(responses)
+            responses = client.streaming_recognize(streaming_config, requests)
+
+            # Now, put the transcription responses to use.
+            listen_print_loop(responses)
+            print("Stopped listening.")
+    stream.terminate() 
+
 
 
 if __name__ == '__main__':
