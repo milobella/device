@@ -1,26 +1,51 @@
 from __future__ import division
 
+import io
 import os
-import re
-import sys
 import json
 import requests as requests_pkg
-
-from google.cloud import speech
-from google.cloud.speech import enums
-from google.cloud.speech import types
 import pyaudio
-from six.moves import queue
-from google.cloud import texttospeech
-
 from pydub import AudioSegment
 from pydub.playback import play
-import io
+
+from six import moves
+from google.cloud import speech, texttospeech
 from pocketsphinx import LiveSpeech
 
 # Audio recording parameters
 RATE = 16000
 CHUNK = int(RATE / 10)  # 100ms
+
+
+class PlayClient():
+
+    def __init__(self):
+        # Instantiates a client
+        self.client = texttospeech.TextToSpeechClient()
+
+        # Build the voice request
+        # noinspection PyTypeChecker
+        self.voice = texttospeech.VoiceSelectionParams(
+            language_code="fr-FR", ssml_gender=texttospeech.SsmlVoiceGender.FEMALE
+        )
+
+        # Select the type of audio file you want returned
+        # noinspection PyTypeChecker
+        self.audio_config = texttospeech.AudioConfig(
+            audio_encoding=texttospeech.AudioEncoding.MP3
+        )
+
+    def synthesize_speech(self, text):
+        # Set the text input to be synthesized
+        synthesis_input = texttospeech.SynthesisInput(text=text)
+
+        # Perform the text-to-speech request on the text input with the selected
+        # voice parameters and audio file type
+        response = self.client.synthesize_speech(
+            input=synthesis_input, voice=self.voice, audio_config=self.audio_config
+        )
+
+        play(AudioSegment.from_file(io.BytesIO(response.audio_content), format="mp3"))
 
 
 class MicrophoneStream(object):
@@ -31,12 +56,12 @@ class MicrophoneStream(object):
         self._chunk = chunk
 
         # Create a thread-safe buffer of audio data
-        self._buff = queue.Queue()
+        self._buff = moves.queue.Queue()
         self.closed = True
 
         self._audio_interface = pyaudio.PyAudio()
-        for i in range(self._audio_interface.get_device_count()):
-            print(self._audio_interface.get_device_info_by_index(i))
+        # for i in range(self._audio_interface.get_device_count()):
+        #     print(self._audio_interface.get_device_info_by_index(i))
 
     def __enter__(self):
         self._audio_stream = self._audio_interface.open(
@@ -88,13 +113,13 @@ class MicrophoneStream(object):
                     if chunk is None:
                         return
                     data.append(chunk)
-                except queue.Empty:
+                except moves.queue.Empty:
                     break
 
             yield b''.join(data)
 
 
-def listen_print_loop(responses):
+def listen_print_loop(client: PlayClient, responses):
     """Iterates through server responses and prints them.
 
     The responses passed is a generator that will block until a response
@@ -110,47 +135,23 @@ def listen_print_loop(responses):
     final one, print a newline to preserve the finalized transcription.
     """
 
-    print("\n\n\n\n\n")
-    num_chars_printed = 0
     for response in responses:
-        if not response.results:
-            continue
+        # Once the transcription has settled, the first result will contain the
+        # is_final result. The other results will be for subsequent portions of
+        # the audio.
+        for result in response.results:
+            print("Finished: {}".format(result.is_final))
+            print("Stability: {}".format(result.stability))
+            alternatives = result.alternatives
+            # The alternatives are ordered from most likely to least.
+            for alternative in alternatives:
+                print("Confidence: {}".format(alternative.confidence))
+                print(u"Transcript: {}".format(alternative.transcript))
 
-        # The `results` list is consecutive. For streaming, we only care about
-        # the first result being considered, since once it's `is_final`, it
-        # moves on to considering the next utterance.
-        result = response.results[0]
-        if not result.alternatives:
-            continue
-
-        # Display the transcription of the top alternative.
-        transcript = result.alternatives[0].transcript
-
-        # Display interim results, but with a carriage return at the end of the
-        # line, so subsequent lines will overwrite them.
-        #
-        # If the previous result was longer than this one, we need to print
-        # some extra spaces to overwrite the previous result
-        overwrite_chars = ' ' * (num_chars_printed - len(transcript))
-
-        if not result.is_final:
-            sys.stdout.write(transcript + overwrite_chars + '\r')
-            sys.stdout.flush()
-
-            num_chars_printed = len(transcript)
-
-        else:
-
-            print(transcript + overwrite_chars)
-
-            # Exit recognition if any of the transcribed phrases could be
-            # one of our keywords.
-            if re.search(r'\b(stop)\b', transcript, re.I):
-                print('Exiting..')
-            else:
+            if result.is_final:
                 milobella_response = requests_pkg.post(
                     'https://milobella.com:10443/talk/text',
-                    data=json.dumps({'text': transcript}),
+                    data=json.dumps({'text': result.alternatives[0].transcript}),
                     headers={
                         'Content-Type': 'application/json',
                         'Authorization': 'Bearer ' + os.environ['MILOBELLA_AUTHORIZATION_TOKEN']
@@ -158,67 +159,50 @@ def listen_print_loop(responses):
                 )
                 print(milobella_response.text)
                 print(milobella_response.json()["vocal"])
-                # Instantiates a client
-                client = texttospeech.TextToSpeechClient()
 
-                # Set the text input to be synthesized
-                synthesis_input = texttospeech.SynthesisInput(text=milobella_response.json()["vocal"])
+                client.synthesize_speech(milobella_response.json()["vocal"])
 
-                # Build the voice request
-                voice = texttospeech.VoiceSelectionParams(
-                    language_code="fr-FR", ssml_gender=texttospeech.SsmlVoiceGender.FEMALE
-                )
-
-                # Select the type of audio file you want returned
-                audio_config = texttospeech.AudioConfig(
-                    audio_encoding=texttospeech.AudioEncoding.MP3
-                )
-
-                # Perform the text-to-speech request on the text input with the selected
-                # voice parameters and audio file type
-                response = client.synthesize_speech(
-                    input=synthesis_input, voice=voice, audio_config=audio_config
-                )
-
-                song = AudioSegment.from_file(io.BytesIO(response.audio_content), format="mp3")
-                play(song)
-
-            num_chars_printed = 0
-            break
+                return
 
 
 def main():
-    # See http://g.co/cloud/speech/docs/languages
-    # for a list of supported languages.
-    language_code = 'fr-FR'  # a BCP-47 language tag
+
+    sphinx_speech = LiveSpeech(keyphrase='bella', lm=False, kws_threshold=1e-20)
 
     client = speech.SpeechClient()
-    config = types.RecognitionConfig(
-        encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
-        sample_rate_hertz=RATE,
-        language_code=language_code)
-    streaming_config = types.StreamingRecognitionConfig(
-        config=config,
-        interim_results=True)
+    play_client = PlayClient()
 
-    sphinx_speech = LiveSpeech(lm=False, keyphrase='bella', kws_threshold=1e-20)
-    stream = MicrophoneStream(RATE, CHUNK)
-    for phrase in sphinx_speech:
+    # noinspection PyTypeChecker
+    config = speech.RecognitionConfig(
+        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
+        sample_rate_hertz=16000,
+        language_code="fr-FR",
+    )
+
+    # noinspection PyTypeChecker
+    streaming_config = speech.StreamingRecognitionConfig(config=config, interim_results=True)
+    for _ in sphinx_speech:
+        print("Started listening...")
+
+        stream = MicrophoneStream(RATE, CHUNK)
+
         with stream:
-            print("oui ?")
-            audio_generator = stream.generator()
-            print("Start listening...")
-            requests = (types.StreamingRecognizeRequest(audio_content=content)
-                    for content in audio_generator)
+            # Listen audio
+            # noinspection PyTypeChecker
+            requests = (
+                speech.StreamingRecognizeRequest(audio_content=chunk) for chunk in stream.generator()
+            )
 
-
-            responses = client.streaming_recognize(streaming_config, requests)
+            # [START speech_python_migration_streaming_response]
+            responses = client.streaming_recognize(
+                config=streaming_config,
+                requests=requests,
+            )
+            # [END speech_python_migration_streaming_request]
 
             # Now, put the transcription responses to use.
-            listen_print_loop(responses)
+            listen_print_loop(play_client, responses)
             print("Stopped listening.")
-    stream.terminate() 
-
 
 
 if __name__ == '__main__':
