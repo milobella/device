@@ -49,5 +49,11 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Run the app
-python milobella.py
+python porcupine.py
+
+# or python pocketsphinx.py
 ```
+
+#### Troubleshooting
+##### Install pyaudio on Windows
+

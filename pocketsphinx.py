@@ -17,7 +17,7 @@ RATE = 16000
 CHUNK = int(RATE / 10)  # 100ms
 
 
-class PlayClient():
+class PlayClient:
 
     def __init__(self):
         # Instantiates a client
