@@ -47,7 +47,9 @@ try:
         channels=1,
         format=pyaudio.paInt16,
         input=True,
-        frames_per_buffer=porcupine.frame_length)
+        frames_per_buffer=porcupine.frame_length,
+        as_loop_back=True
+    )
 
     with m as source:
         r.adjust_for_ambient_noise(source)
