@@ -1,10 +1,14 @@
+#!/usr/bin/env python3
 import argparse
 import os
 import traceback
 
 import bcolors as bcolors
 
-from milo.porcupine import run_porcupine
+from milo.run import run
+from milo.stt.google import GoogleSTT
+from milo.tts.google2 import GoogleTTS2
+from milo.wuw.porcupine import PorcupineWUW
 
 
 class Arguments:
@@ -38,9 +42,16 @@ def parse_arguments() -> Arguments:
 def main():
     args = parse_arguments()
     validate_environment()
+
+    # Technologies selection. For now we don't have choice but it is meant to simplify the comparison of
+    # different technologies
+    tts = GoogleTTS2()
+    wuw = PorcupineWUW()
+    stt = GoogleSTT()
+
     try:
-        run_porcupine(args.milobella_url)
-    except Exception as e:
+        run(args.milobella_url, tts, wuw, stt)
+    except Exception:
         print_error(traceback.format_exc())
 
 
