@@ -27,6 +27,14 @@ source authenticate.sh
 If you are using a Raspberry PI B+ with RASPIAUDIO Ultra +, check the
 [RASPIAUDIO ultra+ configuation](docs/raspiaudio-ultra+-configuration.md) documentation.
 
+### #4 : Make sure you have all dependencies installed
+On linux :
+```bash
+sudo apt-get install libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0
+sudo apt-get install ffmpeg
+sudo apt-get install libpulse-dev
+sudo apt-get install python3-pyaudio
+```
 </details>
 
 ## Install
