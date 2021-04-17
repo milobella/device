@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import speech_recognition as sr
+import time
 
 from milo.message import print_info, print_warn
 from milo.milobella import Milobella
@@ -15,6 +16,8 @@ def run(milobella: Milobella, tts: TTSInterface, wuw: WUWInterface, stt: STTInte
         stt.prepare()
         listening = False
 
+        wuw.prepare()
+
         while True:
             if wuw.process():
                 listening = True
@@ -25,7 +28,7 @@ def run(milobella: Milobella, tts: TTSInterface, wuw: WUWInterface, stt: STTInte
                     question = stt.process()
                     print_info("Question : {}".format(question))
                     answer = milobella.milobella_request(question)
-                    print_info("Answer : {}".format(answer))
+                    print_info("Réponse : {}".format(answer))
                     tts.synthesize_speech(answer)
                 except sr.UnknownValueError:
                     print_warn("Oops! Didn't catch that")
@@ -33,6 +36,10 @@ def run(milobella: Milobella, tts: TTSInterface, wuw: WUWInterface, stt: STTInte
                     print_warn("Uh oh! Couldn't request results from Google Speech Recognition service; {0}".format(e))
                 finally:
                     listening = False
+                    # It seems to listen the extra end of the speak and triggers the WUW, so we make sure
+                    # that the speech is fully finished before preparing the WUW
+                    time.sleep(0.3)
+                    wuw.prepare()
 
     except KeyboardInterrupt:
         print_info("Stopping....")

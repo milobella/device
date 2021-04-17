@@ -20,4 +20,5 @@ class Milobella:
                 'Authorization': 'Bearer ' + self._token
             }
         )
+        # print(milobella_response.json())
         return milobella_response.json()["vocal"]

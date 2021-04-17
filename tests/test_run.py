@@ -30,6 +30,7 @@ class TestRun(unittest.TestCase):
         run.run(milobella_instance, tts_instance, wuw_instance, stt_instance)
 
         tts_instance.synthesize_speech.assert_has_calls([call('Je suis prête'), call('Bonjour'), call('Ça va bien')])
+        wuw_instance.prepare.assert_has_calls([call(), call()])
         stt_instance.prepare.assert_called_once()
         wuw_instance.process.assert_has_calls([call(), call()])
         stt_instance.process.assert_has_calls([call(), call()])

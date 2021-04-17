@@ -19,6 +19,9 @@ class PorcupineWUW(WUWInterface):
             input=True,
             frames_per_buffer=self._porcupine.frame_length)
 
+    def prepare(self) -> None:
+        pass
+
     def process(self) -> bool:
         pcm = self._audio_stream.read(self._porcupine.frame_length)
         pcm = struct.unpack_from("h" * self._porcupine.frame_length, pcm)
