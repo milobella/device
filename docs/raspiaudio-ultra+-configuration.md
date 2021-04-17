@@ -20,3 +20,9 @@ A lot of preset are provided in the instruction repository but not the one I wan
 
 A little diff script made me build a preset using full onboard capabilties : **speakers** and **microphones**.
 > Here is the result: [preset_onboard_speakers_and_microphones](../assets/preset_onboard_speakers_and_microphones)
+
+## **Third** : ``pavucontrol`` configuration
+If RASPIAUDIO Ultra+ drivers has been installed correctly. We should see several possible configurations in ``pavucontrol`` :
+![](./pavucontrol_configuration.png)
+
+On my side, I had to choose the selected one in blue otherwise mic and speaker was blocking each other 

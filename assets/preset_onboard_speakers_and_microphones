@@ -2,8 +2,8 @@ state.wm8960soundcard {
 	control.1 {
 		iface MIXER
 		name 'Capture Volume'
-		value.0 39
-		value.1 39
+		value.0 0
+		value.1 0
 		comment {
 			access 'read write'
 			type INTEGER
@@ -11,8 +11,8 @@ state.wm8960soundcard {
 			range '0 - 63'
 			dbmin -1725
 			dbmax 3000
-			dbvalue.0 1200
-			dbvalue.1 1200
+			dbvalue.0 -1725
+			dbvalue.1 -1725
 		}
 	}
 	control.2 {
@@ -125,8 +125,8 @@ state.wm8960soundcard {
 	control.10 {
 		iface MIXER
 		name 'Playback Volume'
-		value.0 255
-		value.1 255
+		value.0 251
+		value.1 251
 		comment {
 			access 'read write'
 			type INTEGER
@@ -134,15 +134,15 @@ state.wm8960soundcard {
 			range '0 - 255'
 			dbmin -9999999
 			dbmax 0
-			dbvalue.0 0
-			dbvalue.1 0
+			dbvalue.0 -200
+			dbvalue.1 -200
 		}
 	}
 	control.11 {
 		iface MIXER
 		name 'Headphone Playback Volume'
-		value.0 0
-		value.1 0
+		value.0 124
+		value.1 124
 		comment {
 			access 'read write'
 			type INTEGER
@@ -150,8 +150,8 @@ state.wm8960soundcard {
 			range '0 - 127'
 			dbmin -9999999
 			dbmax 600
-			dbvalue.0 -9999999
-			dbvalue.1 -9999999
+			dbvalue.0 300
+			dbvalue.1 300
 		}
 	}
 	control.12 {
@@ -168,8 +168,8 @@ state.wm8960soundcard {
 	control.13 {
 		iface MIXER
 		name 'Speaker Playback Volume'
-		value.0 121
-		value.1 121
+		value.0 127
+		value.1 127
 		comment {
 			access 'read write'
 			type INTEGER
@@ -177,8 +177,8 @@ state.wm8960soundcard {
 			range '0 - 127'
 			dbmin -9999999
 			dbmax 600
-			dbvalue.0 0
-			dbvalue.1 0
+			dbvalue.0 600
+			dbvalue.1 600
 		}
 	}
 	control.14 {
@@ -195,7 +195,7 @@ state.wm8960soundcard {
 	control.15 {
 		iface MIXER
 		name 'Speaker DC Volume'
-		value 4
+		value 5
 		comment {
 			access 'read write'
 			type INTEGER
@@ -206,7 +206,7 @@ state.wm8960soundcard {
 	control.16 {
 		iface MIXER
 		name 'Speaker AC Volume'
-		value 4
+		value 5
 		comment {
 			access 'read write'
 			type INTEGER
@@ -275,7 +275,7 @@ state.wm8960soundcard {
 	control.22 {
 		iface MIXER
 		name '3D Filter Upper Cut-Off'
-		value High
+		value Low
 		comment {
 			access 'read write'
 			type ENUMERATED
@@ -334,7 +334,7 @@ state.wm8960soundcard {
 	control.27 {
 		iface MIXER
 		name 'ALC Max Gain'
-		value 7
+		value 0
 		comment {
 			access 'read write'
 			type INTEGER
@@ -345,7 +345,7 @@ state.wm8960soundcard {
 	control.28 {
 		iface MIXER
 		name 'ALC Target'
-		value 4
+		value 0
 		comment {
 			access 'read write'
 			type INTEGER
@@ -390,7 +390,7 @@ state.wm8960soundcard {
 	control.32 {
 		iface MIXER
 		name 'ALC Decay'
-		value 3
+		value 0
 		comment {
 			access 'read write'
 			type INTEGER
@@ -401,7 +401,7 @@ state.wm8960soundcard {
 	control.33 {
 		iface MIXER
 		name 'ALC Attack'
-		value 2
+		value 0
 		comment {
 			access 'read write'
 			type INTEGER
@@ -433,8 +433,8 @@ state.wm8960soundcard {
 	control.36 {
 		iface MIXER
 		name 'ADC PCM Capture Volume'
-		value.0 195
-		value.1 195
+		value.0 246
+		value.1 246
 		comment {
 			access 'read write'
 			type INTEGER
@@ -442,14 +442,14 @@ state.wm8960soundcard {
 			range '0 - 255'
 			dbmin -9999999
 			dbmax 3000
-			dbvalue.0 0
-			dbvalue.1 0
+			dbvalue.0 2550
+			dbvalue.1 2550
 		}
 	}
 	control.37 {
 		iface MIXER
 		name 'Left Output Mixer Boost Bypass Volume'
-		value 5
+		value 0
 		comment {
 			access 'read write'
 			type INTEGER
@@ -457,13 +457,13 @@ state.wm8960soundcard {
 			range '0 - 7'
 			dbmin -2100
 			dbmax 0
-			dbvalue.0 -600
+			dbvalue.0 -2100
 		}
 	}
 	control.38 {
 		iface MIXER
 		name 'Left Output Mixer LINPUT3 Volume'
-		value 2
+		value 0
 		comment {
 			access 'read write'
 			type INTEGER
@@ -471,13 +471,13 @@ state.wm8960soundcard {
 			range '0 - 7'
 			dbmin -2100
 			dbmax 0
-			dbvalue.0 -1500
+			dbvalue.0 -2100
 		}
 	}
 	control.39 {
 		iface MIXER
 		name 'Right Output Mixer Boost Bypass Volume'
-		value 5
+		value 0
 		comment {
 			access 'read write'
 			type INTEGER
@@ -485,13 +485,13 @@ state.wm8960soundcard {
 			range '0 - 7'
 			dbmin -2100
 			dbmax 0
-			dbvalue.0 -600
+			dbvalue.0 -2100
 		}
 	}
 	control.40 {
 		iface MIXER
 		name 'Right Output Mixer RINPUT3 Volume'
-		value 2
+		value 0
 		comment {
 			access 'read write'
 			type INTEGER
@@ -499,13 +499,13 @@ state.wm8960soundcard {
 			range '0 - 7'
 			dbmin -2100
 			dbmax 0
-			dbvalue.0 -1500
+			dbvalue.0 -2100
 		}
 	}
 	control.41 {
 		iface MIXER
 		name 'ADC Data Output Select'
-		value 'Left Data = Left ADC;  Right Data = Right ADC'
+		value 'Left Data = Right ADC; Right Data = Right ADC'
 		comment {
 			access 'read write'
 			type ENUMERATED
@@ -688,38 +688,38 @@ state.wm8960soundcard {
 			count 1
 		}
 	}
-	control.59 {
-		iface MIXER
-		name Micro
-		value.0 219
-		value.1 219
+}
+state.HY1138 {
+	control.1 {
+		iface PCM
+		name 'Capture Channel Map'
+		value.0 0
+		value.1 0
 		comment {
-			access 'read write user'
+			access read
 			type INTEGER
 			count 2
-			range '0 - 255'
-			tlv '0000000100000008fffffc1800000017'
-			dbmin -1000
-			dbmax 4865
-			dbvalue.0 4037
-			dbvalue.1 4037
+			range '0 - 36'
 		}
 	}
-	control.60 {
+	control.2 {
 		iface MIXER
-		name Master
-		value.0 255
-		value.1 255
+		name 'Mic Capture Switch'
+		value false
 		comment {
-			access 'read write user'
-			type INTEGER
-			count 2
-			range '0 - 255'
-			tlv '0000000100000008ffffec1400000014'
-			dbmin -5100
-			dbmax 0
-			dbvalue.0 0
-			dbvalue.1 0
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.3 {
+		iface CARD
+		name 'Keep Interface'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
 		}
 	}
 }
