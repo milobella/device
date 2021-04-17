@@ -3,8 +3,8 @@ import argparse
 import os
 import traceback
 
-import bcolors as bcolors
-
+from milo.message import print_error
+from milo.milobella import Milobella, MILOBELLA_TOKEN_ENV
 from milo.run import run
 from milo.stt.google import GoogleSTT
 from milo.tts.google2 import GoogleTTS2
@@ -16,14 +16,9 @@ class Arguments:
     milobella_url: str
 
 
-def print_error(message: str) -> None:
-    print(f"{bcolors.ERRMSG} Milobella error : {message}{bcolors.ENDC}")
-    exit(1)
-
-
 def validate_environment() -> None:
-    if "MILOBELLA_AUTHORIZATION_TOKEN" not in os.environ:
-        print_error("Missing env variable \"MILOBELLA_AUTHORIZATION_TOKEN\".")
+    if MILOBELLA_TOKEN_ENV not in os.environ:
+        print_error(f"Missing env variable \"{MILOBELLA_TOKEN_ENV}\".")
 
 
 def parse_arguments() -> Arguments:
@@ -38,7 +33,6 @@ def parse_arguments() -> Arguments:
     return args_obj
 
 
-# noinspection PyBroadException
 def main():
     args = parse_arguments()
     validate_environment()
@@ -49,8 +43,12 @@ def main():
     wuw = PorcupineWUW()
     stt = GoogleSTT()
 
+    # Initialize the milobella client
+    milobella = Milobella(args.milobella_url)
+
+    # noinspection PyBroadException
     try:
-        run(args.milobella_url, tts, wuw, stt)
+        run(milobella, tts, wuw, stt)
     except Exception:
         print_error(traceback.format_exc())
 

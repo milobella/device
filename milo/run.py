@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 import speech_recognition as sr
 
+from milo.message import print_info, print_warn
 from milo.milobella import Milobella
 from milo.stt.__interface__ import STTInterface
 from milo.tts.__interface__ import TTSInterface
 from milo.wuw.__interface__ import WUWInterface
 
 
-def run(milobella_url: str, tts: TTSInterface, wuw: WUWInterface, stt: STTInterface) -> None:
-    milobella = Milobella(milobella_url)
+def run(milobella: Milobella, tts: TTSInterface, wuw: WUWInterface, stt: STTInterface) -> None:
 
     try:
         tts.synthesize_speech("Je suis prête")
@@ -21,21 +21,21 @@ def run(milobella_url: str, tts: TTSInterface, wuw: WUWInterface, stt: STTInterf
 
             if listening:
                 try:
-                    print("Oui ?")
+                    print_info("Oui ?")
                     question = stt.process()
-                    print("Question : {}".format(question))
+                    print_info("Question : {}".format(question))
                     answer = milobella.milobella_request(question)
-                    print("Answer : {}".format(answer))
+                    print_info("Answer : {}".format(answer))
                     tts.synthesize_speech(answer)
                 except sr.UnknownValueError:
-                    print("Oops! Didn't catch that")
+                    print_warn("Oops! Didn't catch that")
                 except sr.RequestError as e:
-                    print("Uh oh! Couldn't request results from Google Speech Recognition service; {0}".format(e))
+                    print_warn("Uh oh! Couldn't request results from Google Speech Recognition service; {0}".format(e))
                 finally:
                     listening = False
 
     except KeyboardInterrupt:
-        print("Stopping....")
+        print_info("Stopping....")
 
     finally:
         wuw.terminate()
