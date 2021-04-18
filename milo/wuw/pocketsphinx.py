@@ -21,6 +21,7 @@ class PocketSphinxWUW(WUWInterface):
 
     def prepare(self) -> None:
         print("starting utterance")
+        self._audio_stream.start_stream()
         self._decoder.start_utt()
         print("started utterance")
 
@@ -39,6 +40,7 @@ class PocketSphinxWUW(WUWInterface):
             #     print(best.hypstr, best.score)
             print("ending utterance")
             self._decoder.end_utt()
+            self._audio_stream.stop_stream()
             print("ended utterance")
             return True
         return False
