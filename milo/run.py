@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 import speech_recognition as sr
-import time
 
 from milo.message import print_info, print_warn
 from milo.milobella import Milobella
 from milo.stt.__interface__ import STTInterface
 from milo.tts.__interface__ import TTSInterface
-from milo.wuw.__interface__ import WUWInterface
+from milo.wuw.__interface__ import WUWInterface, WUWFeedbackInterface
 
 
-def run(milobella: Milobella, tts: TTSInterface, wuw: WUWInterface, stt: STTInterface) -> None:
-
+def run(milobella: Milobella,
+        tts: TTSInterface,
+        wuw: WUWInterface,
+        stt: STTInterface,
+        wuw_feedback: WUWFeedbackInterface) -> None:
     try:
         tts.synthesize_speech("Je suis prête")
         stt.prepare()
@@ -20,6 +22,7 @@ def run(milobella: Milobella, tts: TTSInterface, wuw: WUWInterface, stt: STTInte
 
         while True:
             if wuw.process():
+                wuw_feedback.start_listening_feedback()
                 listening = True
 
             if listening:
@@ -35,6 +38,7 @@ def run(milobella: Milobella, tts: TTSInterface, wuw: WUWInterface, stt: STTInte
                 except sr.RequestError as e:
                     print_warn("Uh oh! Couldn't request results from Google Speech Recognition service; {0}".format(e))
                 finally:
+                    wuw_feedback.end_listening_feedback()
                     listening = False
                     wuw.prepare()
 
@@ -43,3 +47,4 @@ def run(milobella: Milobella, tts: TTSInterface, wuw: WUWInterface, stt: STTInte
 
     finally:
         wuw.terminate()
+        wuw_feedback.terminate()
