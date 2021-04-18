@@ -1,12 +1,7 @@
-import os
-import uuid
-
-import subprocess
+import time
 
 import io
 from google.cloud import texttospeech
-from gtts import gTTS
-from playsound import playsound
 from pydub import AudioSegment
 from pydub.playback import play
 
@@ -42,4 +37,8 @@ class GoogleTTS2(TTSInterface):
         )
 
         play(AudioSegment.from_file(io.BytesIO(response.audio_content), format="mp3"))
+
+        # It seems to listen the extra end of the speak and triggers the WUW, so we make sure
+        # that the speech is fully finished before preparing the WUW
+        time.sleep(0.5)
 
