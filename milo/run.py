@@ -36,9 +36,6 @@ def run(milobella: Milobella, tts: TTSInterface, wuw: WUWInterface, stt: STTInte
                     print_warn("Uh oh! Couldn't request results from Google Speech Recognition service; {0}".format(e))
                 finally:
                     listening = False
-                    # It seems to listen the extra end of the speak and triggers the WUW, so we make sure
-                    # that the speech is fully finished before preparing the WUW
-                    time.sleep(0.3)
                     wuw.prepare()
 
     except KeyboardInterrupt:
