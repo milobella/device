@@ -7,7 +7,7 @@ MILOBELLA_TOKEN_ENV = 'MILOBELLA_AUTHORIZATION_TOKEN'
 
 
 class Milobella:
-    def __init__(self, url):
+    def __init__(self, url: str):
         self._url = url
         self._token = os.environ[MILOBELLA_TOKEN_ENV]
 
@@ -17,7 +17,7 @@ class Milobella:
             data=json.dumps({'text': question}),
             headers={
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + self._token
+                'Authorization': 'Bearer ' + self._token,
             }
         )
         # print(milobella_response.json())

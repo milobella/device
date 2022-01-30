@@ -46,12 +46,20 @@ pip install -U --upgrade-strategy=eager -e .
 ## Run
 ```
 $ milobella --help
-usage: milobella [-h] [--verbose] [--url URL]
+usage: milobella [-h] [--verbose] [--url URL] [--keyword KEYWORD]
+                 [--pocket-sphinx-threshold POCKET_SPHINX_THRESHOLD] [--gpio-led GPIO_LED]
+                 [--tracing-config TRACING_CONFIG]
 
 optional arguments:
-  -h, --help  show this help message and exit
-  --verbose   increase output verbosity
-  --url URL   Milobella URL
+  -h, --help            show this help message and exit
+  --verbose             increase output verbosity
+  --url URL             Milobella URL
+  --keyword KEYWORD     Wake up word
+  --pocket-sphinx-threshold POCKET_SPHINX_THRESHOLD
+                        Pocket Sphinx threshold
+  --gpio-led GPIO_LED   GPIO Led ID
+  --tracing-config TRACING_CONFIG
+                        Tracing YAML configuration file
 ```
 
 ## Documentation

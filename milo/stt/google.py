@@ -43,4 +43,4 @@ class GoogleSTT(STTInterface):
             audio = self._recognizer.listen(source)
             print("after STT audio listening")
         print("after STT Mic destroy")
-        return self._recognizer.recognize_google(audio, language="fr-FR")
+        return self._recognizer.recognize_google_cloud(audio, language="fr-FR")
