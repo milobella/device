@@ -33,7 +33,7 @@ class Arguments:
     keyword: str
     gpio_led: int
     pocketsphinx: PocketSphinxArguments
-    tracer_config: dict
+    tracing_config: dict
 
 
 def validate_environment() -> None:
@@ -59,8 +59,8 @@ def parse_arguments() -> Arguments:
     psphinx_args = PocketSphinxArguments()
     psphinx_args.threshold = args.pocket_sphinx_threshold
     args_obj.pocketsphinx = psphinx_args
-    if args.tracer_config:
-        args_obj.tracer_config = yaml.load(args.tracer_config)
+    if args.tracing_config:
+        args_obj.tracing_config = yaml.load(args.tracing_config)
 
     return args_obj
 
@@ -81,7 +81,7 @@ def init_tracer(cfg: dict) -> None:
 def main():
     args = parse_arguments()
     validate_environment()
-    init_tracer(args.tracer_config)
+    init_tracer(args.tracing_config)
 
     # Technologies selection.
     tts = WithTracingTTS(GoogleTTS2())
