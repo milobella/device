@@ -1,0 +1,4 @@
+service: milobella
+jaeger:
+  agent_host_name: localhost
+  agent_port: 6831

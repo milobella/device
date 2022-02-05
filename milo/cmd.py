@@ -3,14 +3,24 @@ import argparse
 import os
 import traceback
 
+import yaml
+from opentelemetry import trace
+from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
+from opentelemetry.propagate import set_global_textmap
+from opentelemetry.propagators.b3 import B3Format, B3MultiFormat
+from opentelemetry.sdk.resources import Resource, SERVICE_NAME
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
+
 from milo.message import print_error
 from milo.milobella import Milobella, MILOBELLA_TOKEN_ENV
 from milo.run import run
 from milo.stt.google import GoogleSTT
+from milo.tracing.tracing import WithTracingSTT, WithTracingTTS, WithTracingWUW
 from milo.tts.google2 import GoogleTTS2
 from milo.wuw.__interface__ import WUWFeedbackInterface
 from milo.wuw.pocketsphinx import PocketSphinxWUW
-from milo.wuw.rpi_feedback import RPIWUWFeedback
 
 
 class PocketSphinxArguments:
@@ -23,6 +33,7 @@ class Arguments:
     keyword: str
     gpio_led: int
     pocketsphinx: PocketSphinxArguments
+    tracer_config: dict
 
 
 def validate_environment() -> None:
@@ -35,8 +46,10 @@ def parse_arguments() -> Arguments:
     parser.add_argument("--verbose", help="increase output verbosity", action="store_true")
     parser.add_argument("--url", help="Milobella URL", default="https://milobella.com:10443")
     parser.add_argument("--keyword", help="Wake up word", default="bella")
-    parser.add_argument("--pocket-sphinx-threshold", help="Milobella URL", default=1e-30, type=float)
+    parser.add_argument("--pocket-sphinx-threshold", help="Pocket Sphinx threshold", default=1e-30, type=float)
     parser.add_argument("--gpio-led", help="GPIO Led ID", default=-1, type=int)
+    parser.add_argument("--tracing-config", default=None, type=argparse.FileType('r'),
+                        help="Tracing YAML configuration file")
     args = parser.parse_args()
     args_obj = Arguments()
     args_obj.verbose = not not args.verbose
@@ -46,21 +59,38 @@ def parse_arguments() -> Arguments:
     psphinx_args = PocketSphinxArguments()
     psphinx_args.threshold = args.pocket_sphinx_threshold
     args_obj.pocketsphinx = psphinx_args
+    if args.tracer_config:
+        args_obj.tracer_config = yaml.load(args.tracer_config)
 
     return args_obj
+
+
+def init_tracer(cfg: dict) -> None:
+    provider = TracerProvider(
+        resource=Resource.create({SERVICE_NAME: cfg["service_name"]})
+    )
+    jaeger_exporter = JaegerExporter(**cfg["jaeger"])
+    provider.add_span_processor(
+        BatchSpanProcessor(jaeger_exporter)
+    )
+    trace.set_tracer_provider(provider)
+    RequestsInstrumentor().instrument()
+    set_global_textmap(B3MultiFormat())
 
 
 def main():
     args = parse_arguments()
     validate_environment()
+    init_tracer(args.tracer_config)
 
     # Technologies selection.
-    tts = GoogleTTS2()
-    wuw = PocketSphinxWUW(keyword=args.keyword, kws_threshold=args.pocketsphinx.threshold)
-    stt = GoogleSTT()
+    tts = WithTracingTTS(GoogleTTS2())
+    wuw = WithTracingWUW(PocketSphinxWUW(keyword=args.keyword, kws_threshold=args.pocketsphinx.threshold))
+    stt = WithTracingSTT(GoogleSTT())
 
     wuw_feedback = WUWFeedbackInterface()
-    if (args.gpio_led >= 0):
+    if args.gpio_led >= 0:
+        from milo.wuw.rpi_feedback import RPIWUWFeedback
         wuw_feedback = RPIWUWFeedback(args.gpio_led)
 
     # Initialize the milobella client
