@@ -13,7 +13,7 @@ class Milobella:
 
     def milobella_request(self, question: str) -> str:
         milobella_response = requests.post(
-            f"{self._url}/talk/text",
+            f"{self._url}/api/v1/talk/text",
             data=json.dumps({'text': question}),
             headers={
                 'Content-Type': 'application/json',
