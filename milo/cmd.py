@@ -13,6 +13,7 @@ from opentelemetry.sdk.resources import Resource, SERVICE_NAME
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 
+from milo.cast import Cast
 from milo.message import print_error
 from milo.milobella import Milobella, MILOBELLA_TOKEN_ENV
 from milo.run import run
@@ -93,8 +94,11 @@ def main():
         from milo.wuw.rpi_feedback import RPIWUWFeedback
         wuw_feedback = RPIWUWFeedback(args.gpio_led)
 
+    cast = Cast()
+    cast.star_discovery()
+
     # Initialize the milobella client
-    milobella = Milobella(args.milobella_url)
+    milobella = Milobella(args.milobella_url, cast)
 
     # noinspection PyBroadException
     try:

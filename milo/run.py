@@ -25,15 +25,19 @@ def run(milobella: Milobella,
         tts.synthesize_speech("Je suis prête")
         stt.prepare()
         listening = False
+        reprompt = False
 
         span = tracer.start_span(_REQUEST_SPAN)
         token = context.attach(context.set_value(_SPAN_KEY, span))
+
         wuw.prepare()
 
         while True:
-            if wuw.process():
-                wuw_feedback.start_listening_feedback()
-                listening = True
+
+            if not listening:
+                if wuw.process():
+                    wuw_feedback.start_listening_feedback()
+                    listening = True
 
             if listening:
                 try:
@@ -41,7 +45,7 @@ def run(milobella: Milobella,
                     question = stt.process()
                     print_info("Question : {}".format(question))
                     # scope.("question", question)
-                    answer = milobella.milobella_request(question)
+                    answer, reprompt = milobella.milobella_request(question)
                     # scope.set_attribute("answer", answer)
                     print_info("Réponse : {}".format(answer))
                     tts.synthesize_speech(answer)
@@ -58,7 +62,11 @@ def run(milobella: Milobella,
                     span = tracer.start_span(_REQUEST_SPAN)
                     token = context.attach(context.set_value(_SPAN_KEY, span))
 
-                    wuw.prepare()
+                    if reprompt:
+                        wuw_feedback.start_listening_feedback()
+                        listening = True
+                    else:
+                        wuw.prepare()
 
     except KeyboardInterrupt:
         print_info("Stopping....")
