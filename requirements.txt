@@ -33,7 +33,7 @@ packaging==20.9
 playsound==1.2.2
 pocketsphinx==0.1.15
 proto-plus==1.13.0
-protobuf==3.15.0
+protobuf==3.18.3
 pvporcupine==1.9.4
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
