@@ -37,13 +37,45 @@ class Milobella:
         response = milobella_response.json()
         self._current_context = response['context'] if 'context' in response else None
         if 'actions' in response:
+            # Execute all actions in the response
+            # TODO: refactor
             for action in response['actions']:
-                for param in response['params']:
-                    if param['key'] == 'instrument':
-                        if action == 'play':
-                            self._cast.play(param['value'])
-                        if action == 'pause':
-                            self._cast.pause(param['value'])
+                if action['identifier'] == "play":
+                    instrument_name = next((p['value'] for p in action['params'] if p['key'] == 'instrument'), None)
+                    instrument_kind = next((p['value'] for p in action['params'] if p['key'] == 'kind'), 'chromecast')
+                    if instrument_name is None:
+                        print('instrument name not provided')
+                        continue
+                    if instrument_kind is not 'chromecast':
+                        print(f'unsupported instrument kind {instrument_kind}')
+                        continue
+                    self._cast.play(instrument_name)
+
+                elif action['identifier'] == "pause":
+                    instrument_name = next((p['value'] for p in action['params'] if p['key'] == 'instrument'), None)
+                    instrument_kind = next((p['value'] for p in action['params'] if p['key'] == 'kind'), 'chromecast')
+                    if instrument_name is None:
+                        print('instrument name not provided')
+                        continue
+                    if instrument_kind is not 'chromecast':
+                        print(f'unsupported instrument kind {instrument_kind}')
+                        continue
+                    self._cast.pause(instrument_name)
+
+                elif action['identifier'] == "play_media":
+                    instrument_name = next((p['value'] for p in action['params'] if p['key'] == 'instrument'), None)
+                    instrument_kind = next((p['value'] for p in action['params'] if p['key'] == 'kind'), 'chromecast')
+                    url = next((p['value'] for p in action['params'] if p['key'] == 'url'), None)
+                    if instrument_name is None:
+                        print('instrument name not provided')
+                        continue
+                    if instrument_kind is not 'chromecast':
+                        print(f'unsupported instrument kind {instrument_kind}')
+                        continue
+                    if url is None:
+                        print('url not provided')
+                        continue
+                    self._cast.play_media(instrument_name, url)
 
         print(response)
         return response["vocal"], response['auto_reprompt'] if 'auto_reprompt' in response else False
