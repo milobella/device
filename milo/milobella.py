@@ -20,7 +20,7 @@ class Milobella:
             'text': question,
             'device': {
                 'instruments': [
-                    {'kind': 'chromecast', 'actions': ['play', 'pause'], 'name': name} for name in self._cast.names()
+                    {'kind': 'chromecast', 'actions': ['play', 'pause', 'play_media'], 'name': name} for name in self._cast.names()
                 ],
             },
             'context': self._current_context
@@ -46,7 +46,7 @@ class Milobella:
                     if instrument_name is None:
                         print('instrument name not provided')
                         continue
-                    if instrument_kind is not 'chromecast':
+                    if instrument_kind != 'chromecast':
                         print(f'unsupported instrument kind {instrument_kind}')
                         continue
                     self._cast.play(instrument_name)
@@ -57,7 +57,7 @@ class Milobella:
                     if instrument_name is None:
                         print('instrument name not provided')
                         continue
-                    if instrument_kind is not 'chromecast':
+                    if instrument_kind != 'chromecast':
                         print(f'unsupported instrument kind {instrument_kind}')
                         continue
                     self._cast.pause(instrument_name)
@@ -69,7 +69,7 @@ class Milobella:
                     if instrument_name is None:
                         print('instrument name not provided')
                         continue
-                    if instrument_kind is not 'chromecast':
+                    if instrument_kind != 'chromecast':
                         print(f'unsupported instrument kind {instrument_kind}')
                         continue
                     if url is None:
