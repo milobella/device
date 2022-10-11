@@ -14,7 +14,11 @@ class Cast:
 
     def pause(self, name: str):
         if name in self.casts:
-            self.casts[name].media_controller.play()
+            self.casts[name].media_controller.pause()
+
+    def play_media(self, name: str, url: str):
+        if name in self.casts:
+            self.casts[name].media_controller.play_media(url)
 
     def names(self):
         return self.casts.keys()
