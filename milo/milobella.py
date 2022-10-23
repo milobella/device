@@ -3,25 +3,23 @@ import os
 
 import requests
 
-from milo.cast import Cast
+from milo.cast import CastManager
 
 MILOBELLA_TOKEN_ENV = 'MILOBELLA_AUTHORIZATION_TOKEN'
 
 
 class Milobella:
-    def __init__(self, url: str, cast: Cast):
+    def __init__(self, url: str, cast_manager: CastManager):
         self._url = url
         self._token = os.environ[MILOBELLA_TOKEN_ENV]
-        self._cast = cast
+        self._cast_manager = cast_manager
         self._current_context = None
 
     def milobella_request(self, question: str) -> (str, bool):
         request = {
             'text': question,
             'device': {
-                'instruments': [
-                    {'kind': 'chromecast', 'actions': ['play', 'pause', 'play_media'], 'name': name} for name in self._cast.names()
-                ],
+                'instruments': self._cast_manager.as_instruments(),
             },
             'context': self._current_context
         }
@@ -49,7 +47,7 @@ class Milobella:
                     if instrument_kind != 'chromecast':
                         print(f'unsupported instrument kind {instrument_kind}')
                         continue
-                    self._cast.play(instrument_name)
+                    self._cast_manager.play(instrument_name)
 
                 elif action['identifier'] == "pause":
                     instrument_name = next((p['value'] for p in action['params'] if p['key'] == 'instrument'), None)
@@ -60,7 +58,7 @@ class Milobella:
                     if instrument_kind != 'chromecast':
                         print(f'unsupported instrument kind {instrument_kind}')
                         continue
-                    self._cast.pause(instrument_name)
+                    self._cast_manager.pause(instrument_name)
 
                 elif action['identifier'] == "play_media":
                     instrument_name = next((p['value'] for p in action['params'] if p['key'] == 'instrument'), None)
@@ -75,7 +73,7 @@ class Milobella:
                     if url is None:
                         print('url not provided')
                         continue
-                    self._cast.play_media(instrument_name, url)
+                    self._cast_manager.play_media(instrument_name, url)
 
         print(response)
         return response["vocal"], response['auto_reprompt'] if 'auto_reprompt' in response else False
