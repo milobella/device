@@ -91,4 +91,4 @@ class CastManager:
             blocking=False, tries=None, retry_wait=5, timeout=5, callback=cast_found)
 
     def as_instruments(self) -> List[Dict]:
-        return [cast.as_instrument() for cast in self._casts]
+        return [cast.as_instrument() for cast in self._casts.values()]
