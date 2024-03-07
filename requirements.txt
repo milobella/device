@@ -10,7 +10,7 @@ google-auth==1.26.1
 google-cloud-speech==2.0.1
 google-cloud-texttospeech==2.2.0
 googleapis-common-protos==1.52.0
-grpcio==1.53.0
+grpcio==1.53.2
 gTTS==2.2.2
 idna==2.10
 plexapi~=4.13.0
