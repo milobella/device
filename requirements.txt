@@ -44,7 +44,7 @@ pyglet==1.5.15
 pyparsing==2.4.7
 pytz==2020.1
 PyYAML==5.4
-requests==2.31.0
+requests==2.32.0
 rsa==4.7
 six==1.15.0
 SpeechRecognition==3.8.1
