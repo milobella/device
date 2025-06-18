@@ -50,7 +50,7 @@ six==1.15.0
 SpeechRecognition==3.8.1
 typing-extensions==3.7.4.2
 typing-inspect==0.6.0
-urllib3==1.26.19
+urllib3==2.5.0
 
 PyChromecast~=12.1.4
 setuptools~=60.6.0
